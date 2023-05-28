@@ -1,0 +1,8 @@
+TOKEN = ""
+ADMIN_ID = [1834172129, 5800683552]
+CHANNEL_ID = {
+}
+
+C_DATA_TEXT = {
+
+}
