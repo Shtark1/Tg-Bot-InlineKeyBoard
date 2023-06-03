@@ -14,7 +14,7 @@ not_channel_message = "У вас пока нет добавленных кана
 add_group_message = 'В группе бот должен быть добавлен как администратор\nНапишите в группу: `ere02423-piWAFkdab`'
 
 create_post_1_message = "Введите текст поста:"
-create_post_2_message = "Скиньте фото для поста:"
+create_post_2_message = "Скиньте фото, видео или гиф для поста:"
 create_post_3_message = "Так выглядит ваш пост"
 
 btn_url_1_message = "Впишите название кнопки"

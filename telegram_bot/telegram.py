@@ -138,14 +138,24 @@ async def start_command(message: Message, state: FSMContext):
 
 
 # =============== ВЫВОД ПОСТА ===============
-@dp.message_handler(content_types=["photo"], state=StatesUsers.STATE_1)
+@dp.message_handler(content_types=["photo", "video", "animation"], state=StatesUsers.STATE_1)
 async def get_photo(message: Message, state: FSMContext):
-    file_id = message.photo[-1].file_id
     all_data = await state.get_data()
     text = all_data["text"]
+
+    try:
+        file_id = message.video.file_id
+        await bot.send_video(message.chat.id, file_id, caption=text)
+    except:
+        try:
+            file_id = message.animation.file_id
+            await bot.send_animation(message.chat.id, file_id, caption=text)
+        except:
+            file_id = message.photo[-1].file_id
+            await bot.send_photo(message.chat.id, file_id, caption=text)
+
     await state.update_data(photo=file_id)
 
-    await bot.send_photo(message.chat.id, file_id, caption=text)
     await message.answer(MESSAGES['create_post_3'], reply_markup=BUTTON_TYPES["BTN_POST"])
     await state.set_state(StatesUsers.all()[2])
 
@@ -206,40 +216,58 @@ async def start_command(message: Message, state: FSMContext):
 # =============== ДОБАВИТЬ URL ===============
 @dp.message_handler(state=StatesUsers.STATE_4)
 async def start_command(message: Message, state: FSMContext):
-    await save_btn(message, state)
-
-    mark = InlineKeyboardMarkup()
-    # ДОБАВЛЕИЕ КНОПКИ С ССЫЛКОЙ
-    all_data = await state.get_data()
     try:
-        btn_url = all_data["btn_url"]
-        text_btn_url = all_data["text_btn_url"]
-        for idx, btn in enumerate(btn_url):
-            mark.add(InlineKeyboardButton(text=text_btn_url[idx], url=btn))
-    except:
-        pass
+        await save_btn(message, state)
 
-    # ДОБАВЛЕИЕ КНОПКИ С ТЕКСТОМ
-    try:
-        text_btn_text = all_data["text_btn_text"]
+        mark = InlineKeyboardMarkup()
+        # ДОБАВЛЕИЕ КНОПКИ С ССЫЛКОЙ
+        all_data = await state.get_data()
+        try:
+            btn_url = all_data["btn_url"]
+            text_btn_url = all_data["text_btn_url"]
+            for idx, btn in enumerate(btn_url):
+                mark.add(InlineKeyboardButton(text=text_btn_url[idx], url=btn))
+        except:
+            pass
 
-        for idx, btn in enumerate(text_btn_text):
-            mark.add(InlineKeyboardButton(text=btn, callback_data=f"{all_data['callback_data'][idx]}"))
-    except:
-        pass
+        # ДОБАВЛЕИЕ КНОПКИ С ТЕКСТОМ
+        try:
+            text_btn_text = all_data["text_btn_text"]
 
-    # ОТПРАВКА ПОСТА
-    try:
-        file_id = all_data["photo"]
-        text = all_data["text"]
-        await bot.send_photo(message.chat.id, file_id, caption=text, reply_markup=mark)
-        await message.answer(MESSAGES['create_post_3'], reply_markup=BUTTON_TYPES["BTN_POST"])
-        await state.set_state(StatesUsers.all()[2])
+            for idx, btn in enumerate(text_btn_text):
+                mark.add(InlineKeyboardButton(text=btn, callback_data=f"{all_data['callback_data'][idx]}"))
+        except:
+            pass
+
+        # ОТПРАВКА ПОСТА
+        try:
+            file_id = all_data["photo"]
+            text = all_data["text"]
+            await bot.send_photo(message.chat.id, file_id, caption=text, reply_markup=mark)
+            await message.answer(MESSAGES['create_post_3'], reply_markup=BUTTON_TYPES["BTN_POST"])
+            await state.set_state(StatesUsers.all()[2])
+        except:
+            try:
+                try:
+                    file_id = all_data["photo"]
+                    text = all_data["text"]
+                    await bot.send_video(message.chat.id, file_id, caption=text, reply_markup=mark)
+                    await message.answer(MESSAGES['create_post_3'], reply_markup=BUTTON_TYPES["BTN_POST"])
+                    await state.set_state(StatesUsers.all()[2])
+                except:
+                    file_id = all_data["photo"]
+                    text = all_data["text"]
+                    await bot.send_animation(message.chat.id, file_id, caption=text, reply_markup=mark)
+                    await message.answer(MESSAGES['create_post_3'], reply_markup=BUTTON_TYPES["BTN_POST"])
+                    await state.set_state(StatesUsers.all()[2])
+            except:
+                text = all_data["text"]
+                await message.answer(text, reply_markup=mark)
+                await message.answer(MESSAGES['create_post_3'], reply_markup=BUTTON_TYPES["BTN_POST"])
+                await state.set_state(StatesUsers.all()[2])
     except:
-        text = all_data["text"]
-        await message.answer(text, reply_markup=mark)
-        await message.answer(MESSAGES['create_post_3'], reply_markup=BUTTON_TYPES["BTN_POST"])
-        await state.set_state(StatesUsers.all()[2])
+        await message.answer(MESSAGES['start_admin'], reply_markup=BUTTON_TYPES["BTN_HOME_ADMIN"])
+        state.finish()
 
 
 # =============== ВЫБОР КАНАЛОВ ===============

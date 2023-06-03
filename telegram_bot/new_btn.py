@@ -47,7 +47,16 @@ async def post(all_data, channel_id_repost, bot, text, mark, time):
         file_id = all_data["photo"]
         for channel in channel_id_repost:
             await bot.send_photo(chat_id=channel, photo=file_id, caption=text, reply_markup=mark)
-
     except:
-        for channel in channel_id_repost:
-            await bot.send_message(chat_id=channel, text=text, reply_markup=mark)
+        try:
+            try:
+                file_id = all_data["photo"]
+                for channel in channel_id_repost:
+                    await bot.send_video(chat_id=channel, video=file_id, caption=text, reply_markup=mark)
+            except:
+                file_id = all_data["photo"]
+                for channel in channel_id_repost:
+                    await bot.send_animation(chat_id=channel, animation=file_id, caption=text, reply_markup=mark)
+        except:
+            for channel in channel_id_repost:
+                await bot.send_message(chat_id=channel, text=text, reply_markup=mark)
