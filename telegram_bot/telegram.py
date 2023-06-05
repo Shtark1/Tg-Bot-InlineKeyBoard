@@ -422,9 +422,14 @@ async def start_command(message: Message, state: FSMContext):
 
         await post(all_data, channel_id_repost, bot, text, mark, time_post)
 
-    except:
-        await message.answer("Вы ввели не целое число\nВведите целое число в секундах")
-        await state.set_state(StatesUsers.all()[7])
+    except Exception as ex:
+        print(ex)
+        if message.text.lower() == "отмена":
+            await message.answer(MESSAGES['start_admin'], reply_markup=BUTTON_TYPES["BTN_HOME_ADMIN"])
+            await state.finish()
+        else:
+            await message.answer("Вы ввели не целое число\nВведите целое число в секундах")
+            await state.set_state(StatesUsers.all()[7])
 
 
 # =============== ДОБАВИТЬ АДМИНА ===============
