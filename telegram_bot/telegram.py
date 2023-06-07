@@ -120,7 +120,7 @@ async def start_command(message: Message):
                 await message.answer(MESSAGES['not_channel'])
                 await message.answer(MESSAGES['start_admin'], reply_markup=BUTTON_TYPES["BTN_HOME_ADMIN"])
             else:
-                await message.answer(MESSAGES['create_post_1'], reply_markup=BUTTON_TYPES["BTN_CANCEL"])
+                await message.answer(MESSAGES['create_post_1'], reply_markup=BUTTON_TYPES["BTN_CANCEL_MISS"])
                 state = dp.current_state(user=message.from_user.id)
                 await state.set_state(StatesUsers.all()[0])
 
@@ -131,6 +131,12 @@ async def start_command(message: Message, state: FSMContext):
     if message.text.lower() == "отмена":
         await message.answer(MESSAGES['start_admin'], reply_markup=BUTTON_TYPES["BTN_HOME_ADMIN"])
         await state.finish()
+        
+    elif message.text.lower() == "пропустить":
+        await message.answer(MESSAGES['create_post_2'], reply_markup=BUTTON_TYPES["BTN_CANCEL_MISS"])
+        await state.update_data(text="")
+        await state.set_state(StatesUsers.all()[1])
+    
     else:
         await message.answer(MESSAGES['create_post_2'], reply_markup=BUTTON_TYPES["BTN_CANCEL_MISS"])
         await state.update_data(text=message.text)
